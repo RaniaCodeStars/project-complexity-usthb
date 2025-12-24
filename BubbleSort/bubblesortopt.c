@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-
+// Tri à bulles classique [cite: 27]
 void bubbleSort(int *T, int n)
 {
   int change, i;
@@ -23,7 +23,7 @@ void bubbleSort(int *T, int n)
   } while (change);
 }
 
-// Bubble Sort optimisé
+// Tri à bulles optimisé [cite: 44]
 void bubbleSortOpt(int *T, int n)
 {
   int change, i, m = n - 1;
@@ -31,7 +31,7 @@ void bubbleSortOpt(int *T, int n)
   {
     change = 0;
     for (i = 0; i < m; i++)
-    { // on s'arrête à m
+    {
       if (T[i] > T[i + 1])
       {
         int temp = T[i];
@@ -40,68 +40,59 @@ void bubbleSortOpt(int *T, int n)
         change = 1;
       }
     }
-    m--; // réduire la zone non triée
+    m--; // Après chaque itération, le plus grand est à sa place [cite: 42, 57]
   } while (change);
 }
 
-// Fonction pour mesurer le temps en secondes
-double measureTime(void (*sortFunc)(int *, int), int *T, int n)
+// Fonction de mesure avec moyenne sur 5 essais
+double measureAverageTime(void (*sortFunc)(int *, int), int n, int type)
 {
-  struct timeval start, end;
-  gettimeofday(&start, NULL);
-  sortFunc(T, n);
-  gettimeofday(&end, NULL);
-  long seconds = end.tv_sec - start.tv_sec;
-  long microseconds = end.tv_usec - start.tv_usec;
-  return seconds + microseconds * 1e-6;
-}
+  double totalTime = 0;
+  int *testArray = (int *)malloc(n * sizeof(int));
 
-// Fonction pour copier un tableau
-void copyArray(int *src, int *dest, int n)
-{
-  for (int i = 0; i < n; i++)
-    dest[i] = src[i];
+  for (int k = 0; k < 5; k++)
+  {
+    // Remplissage selon le cas [cite: 12]
+    for (int j = 0; j < n; j++)
+    {
+      if (type == 0)
+        testArray[j] = j; // Meilleur cas (trié)
+      else if (type == 1)
+        testArray[j] = n - j; // Pire cas (inversé)
+      else
+        testArray[j] = rand() % 10000; // Cas aléatoire [cite: 12]
+    }
+
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+    sortFunc(testArray, n);
+    gettimeofday(&end, NULL);
+
+    double execTime = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) * 1e-6;
+    totalTime += execTime;
+  }
+
+  free(testArray);
+  return totalTime / 5.0; // Retourne la moyenne
 }
 
 int main()
 {
-  int sizes[] = {100, 500, 1000, 2000, 5000, 10000, 20000};
+  // Choix des tailles n pertinentes [cite: 14]
+  int sizes[] = {500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000};
   int numSizes = sizeof(sizes) / sizeof(sizes[0]);
-  int i, j;
+  srand(time(NULL));
 
-  srand(time(0));
-
-  for (i = 0; i < numSizes; i++)
+  printf("Taille(n)\tSort_Best\tSortOpt_Best\tSort_Worst\tSortOpt_Worst\n");
+  for (int i = 0; i < numSizes; i++)
   {
     int n = sizes[i];
-    int *original = (int *)malloc(n * sizeof(int));
-    int *T = (int *)malloc(n * sizeof(int));
+    double t1 = measureAverageTime(bubbleSort, n, 0);
+    double t2 = measureAverageTime(bubbleSortOpt, n, 0);
+    double t3 = measureAverageTime(bubbleSort, n, 1);
+    double t4 = measureAverageTime(bubbleSortOpt, n, 1);
 
-    printf("\n=== Taille du tableau: %d ===\n", n);
-
-    // Meilleur cas: tableau déjà trié
-    for (j = 0; j < n; j++)
-      original[j] = j;
-
-    copyArray(original, T, n);
-    printf("BubbleSort meilleur cas: %.6f s\n", measureTime(bubbleSort, T, n));
-
-    copyArray(original, T, n);
-    printf("BubbleSortOpt meilleur cas: %.6f s\n", measureTime(bubbleSortOpt, T, n));
-
-    // Pire cas: tableau inversé
-    for (j = 0; j < n; j++)
-      original[j] = n - j;
-
-    copyArray(original, T, n);
-    printf("BubbleSort pire cas: %.6f s\n", measureTime(bubbleSort, T, n));
-
-    copyArray(original, T, n);
-    printf("BubbleSortOpt pire cas: %.6f s\n", measureTime(bubbleSortOpt, T, n));
-
-    free(original);
-    free(T);
+    printf("%d\t        %.6f\t  %.6f\t   %.6f\t    %.6f\n", n, t1, t2, t3, t4);
   }
-
   return 0;
 }
