@@ -36,25 +36,33 @@ void tableauAleatoire(int A[], int n) { //remplir le tableau de valeurs aléatoi
 //test de temps
 
 void testerCas(char *nomCas, void (*init)(int*, int), int n) {
-    int *A = (int *)malloc(n * sizeof(int)); //allocation dynamique d'un tableau de n entiers
-    double temps; //variable temps pour stocker le temps d'execution 
-    clock_t debut, fin; //temps de debut et de fin 
+    int *A = (int *)malloc(n * sizeof(int)); // allocation dynamique
+    double temps;
+    double somme = 0.0;
+    double moyenne;
+    clock_t debut, fin;
 
     printf("\n=== Test Gnome Sort pour %s | n = %d ===\n", nomCas, n);
 
     for (int k = 1; k <= 5; k++) {
-        init(A, n); //initialisation du tableau
+        init(A, n); // initialisation du tableau
 
         debut = clock(); //enregistrer l'instant du début du tri
         gnomeSort(A, n);
         fin = clock(); //enregistrer l'instant du fin du tri
 
         temps = ((double)(fin - debut)) / CLOCKS_PER_SEC; //convertir le temps CPU en secondes
-        printf("Execution %d : %.6f secondes\n", k, temps); //afficher le temps d'execution 
+        printf("Execution %d : %.6f secondes\n", k, temps); //afficher le temps d'execution
+
+        somme += temps; //ajout du temps a la somme
     }
+
+    moyenne = somme / 5.0; // <-- NOUVEAU : calcul de la moyenne
+    printf("Temps moyen : %.6f secondes\n", moyenne);
 
     free(A); //libere la mémoire alloué 
 }
+
 
 int main() {
     srand(time(NULL)); //Initialise le générateur de nombres aléatoires qui evite d'avoir les memes valeurs a chaque execution 
