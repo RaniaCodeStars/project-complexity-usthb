@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-// Tri à bulles classique [cite: 27]
+// Tri à bulles classique
 void bubbleSort(int *T, int n)
 {
   int change, i;
@@ -23,7 +23,7 @@ void bubbleSort(int *T, int n)
   } while (change);
 }
 
-// Tri à bulles optimisé [cite: 44]
+// Tri à bulles optimisé
 void bubbleSortOpt(int *T, int n)
 {
   int change, i, m = n - 1;
@@ -60,7 +60,7 @@ double measureAverageTime(void (*sortFunc)(int *, int), int n, int type)
       else if (type == 1)
         testArray[j] = n - j; // Pire cas (inversé)
       else
-        testArray[j] = rand() % 10000; // Cas aléatoire [cite: 12]
+        testArray[j] = rand() % 10000; // Cas aléatoire
     }
 
     struct timeval start, end;
